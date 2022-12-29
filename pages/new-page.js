@@ -1,21 +1,35 @@
 import { async } from "@firebase/util";
-import { useState } from "react";
-import { deleteData, readData, updateData } from "../utils/firebaseAuth";
+import { onSnapshot } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { collectionRef, deleteData, readData, realArr, realTimeData, updateData } from "../utils/firebaseAuth";
 
 const NewPage =(props) => {
 
     console.log('Props of New Page: ',props);
 
-    readData().then(result=>{
-        console.log("Result: ",result);
-    }).catch(err=>{
-        console.log(err);
-    })
+    // readData().then(result=>{
+    //     console.log("Result: ",result);
+    // }).catch(err=>{
+    //     console.log(err);
+    // })
 
     const [input,setInput] = useState({
         title:'',
         author:''
     })
+
+    const [fireBaseData, setFireBaseData] = useState([]);
+
+    useEffect(()=>{
+        const unsubscribe = onSnapshot(collectionRef,(snapshot)=>{
+            let arr = []
+            snapshot.docs.forEach(aa=>{
+                arr.push({id:aa.id,...aa.data()})
+            })
+            setFireBaseData(arr)
+        });
+        return unsubscribe
+    },[])
 
     console.log("===>RENDERING TEST");
 
@@ -43,7 +57,7 @@ const NewPage =(props) => {
             <button onClick={updateData}>Update Data</button>
             <hr />
           
-            {props.data.map(x=>(
+            {fireBaseData.map(x=>(
                 <ol key={x.id}>
                     <li>Title: {x.title} / Author: {x.author} </li> 
                     <button 
@@ -80,12 +94,10 @@ export default NewPage;
 
 
 export async function getStaticProps(){
-    const hello = await readData()
-    console.log('\n\nHello@newPage: ', hello);
 
     return {
         props:{
-            data: hello
+            data: 'text'
         }
     }
 }

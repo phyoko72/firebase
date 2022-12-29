@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import {addDoc, collection, deleteDoc, doc, getDocs, getFirestore} from "firebase/firestore";
+import {addDoc, collection, deleteDoc, doc, getDocs, getFirestore, onSnapshot} from "firebase/firestore";
 
 
 const firebaseConfig = {
@@ -17,18 +17,18 @@ const app = initializeApp(firebaseConfig)
 
 const db = getFirestore(app);
 
-const collectionRef = collection(db,'books');
+export const collectionRef = collection(db,'books');
 
-export async function readData(){
-    const snapshot = await getDocs(collectionRef)
-    let arr = []
-    snapshot.docs.forEach(aa=>{
-        arr.push({id:aa.id,...aa.data()})
-    })
+// export async function readData(){
+//     const snapshot = await getDocs(collectionRef)
+//     let arr = []
+//     snapshot.docs.forEach(aa=>{
+//         arr.push({id:aa.id,...aa.data()})
+//     })
 
-    console.log("Arr: ",arr);
-    return arr
-}
+//     console.log("Arr: ",arr);
+//     return arr
+// }
 
 export async function updateData(data){
     try {
@@ -43,6 +43,29 @@ export async function deleteData(delId){
     const delData =  doc(db,'books',delId)
     const dataDeleted = await deleteDoc(delData)
 }
+
+export const realTimeData = () =>{
+    const realArr = []
+    onSnapshot(collectionRef,(snapshot)=>{
+        snapshot.docs.forEach(aa=>{
+            realArr.push({id:aa.id,...aa.data()})
+        })
+        console.log('Inside: ',realArr);
+    })
+
+    console.log('Outside: ',realArr);
+
+    return realArr
+}
+
+// export const realTimeData = onSnapshot(collectionRef,(snapshot)=>{
+//     let realArr = []
+//     snapshot.docs.forEach(aa=>{
+//         realArr.push({id:aa.id,...aa.data()})
+//     })
+//     console.log('realTimeData: ',realArr);
+//     return realArr;
+// })
 
 
 
