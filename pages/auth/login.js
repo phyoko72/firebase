@@ -1,18 +1,18 @@
 import {FcGoogle} from "react-icons/fc";
 import {AiFillFacebook} from "react-icons/ai";
 import {getAuth,GoogleAuthProvider, signInWithPopup} from "firebase/auth";
-import { auth } from "../../utils/firebase";
+import { fireAuth } from "../../utils/firebaseAuth";
 
 const Login = () => {
     const googleProvider = new GoogleAuthProvider()
-
-    const aa = getAuth()
+    
+    googleProvider.addScope('https://www.googleapis.com/auth/contacts.readonly')
 
     const GoogleLogin = async()=>{
         
         try {
 
-            const result = await signInWithPopup(auth,googleProvider)
+            const result = await signInWithPopup(fireAuth,googleProvider)
             console.log('User: ',result.user);
 
         } catch (error) {
